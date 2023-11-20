@@ -53,6 +53,8 @@ public class OriginsRandomiserConfig implements ConfigData {
         @ConfigEntry.Gui.Tooltip
         public boolean deathRandomisesOrigin = true;
         @ConfigEntry.Gui.Tooltip
+        public String avoidDeathRandomizeWith = "minecraft:dead_bush";
+        @ConfigEntry.Gui.Tooltip
         public boolean sleepRandomisesOrigin = false;
         @ConfigEntry.Gui.Tooltip
         public int sleepsBetweenRandomises = 1;

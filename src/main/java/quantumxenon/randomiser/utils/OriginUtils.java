@@ -23,9 +23,6 @@ public interface OriginUtils {
     OriginsRandomiserConfig config = OriginsRandomiserConfig.getConfig();
 
     static void randomOrigin(Reason reason, ServerPlayerEntity player) {
-        if (config.general.dropExtraInventory) {
-            dropItems(player);
-        }
         Origin newOrigin = getRandomOrigin(player);
         setOrigin(player, newOrigin);
         String originName = getFormattedName(newOrigin);
@@ -39,7 +36,7 @@ public interface OriginUtils {
 
     private static Origin getRandomOrigin(ServerPlayerEntity player) {
         List<Origin> origins = layer.getRandomOrigins(player).stream().map(OriginRegistry::get).toList();
-        Origin currentOrigin = ModComponents.ORIGIN.get(player).getOrigin(layer);
+        Origin currentOrigin = getOrigin(player);
         Origin newOrigin = origins.get(new Random().nextInt(origins.size()));
         if (!config.general.allowDuplicateOrigins) {
             while (newOrigin.equals(currentOrigin)) {
@@ -49,7 +46,12 @@ public interface OriginUtils {
         return newOrigin;
     }
 
-    private static void setOrigin(ServerPlayerEntity player, Origin origin) {
+    static Origin getOrigin(ServerPlayerEntity player) {
+        return ModComponents.ORIGIN.get(player).getOrigin(layer);
+    }
+
+    static void setOrigin(ServerPlayerEntity player, Origin origin) {
+        dropExtraItems(player);
         ModComponents.ORIGIN.get(player).setOrigin(layer, origin);
         OriginComponent.sync(player);
     }
@@ -58,7 +60,8 @@ public interface OriginUtils {
         return Text.translatable(origin.getOrCreateNameTranslationKey()).getString();
     }
 
-    private static void dropItems(ServerPlayerEntity player) {
+    static void dropExtraItems(ServerPlayerEntity player) {
+        if (!config.general.dropExtraInventory) return;
         PowerHolderComponent.getPowers(player, InventoryPower.class).forEach(inventory -> {
             for (int slot = 0; slot < inventory.size(); slot++) {
                 ItemStack itemStack = inventory.getStack(slot);
